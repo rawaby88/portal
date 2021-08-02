@@ -1,0 +1,57 @@
+{
+    "name": "rawaby88/portal",
+    "description": "Portal",
+    "keywords": [
+        "rawaby88",
+        "portal"
+    ],
+    "homepage": "https://github.com/rawaby88/portal",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Mahmoud Osman",
+            "email": "github@dreamod.pl",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "ext-json": "*",
+        "illuminate/support": "^8.0",
+        "illuminate/contracts": "^8.0",
+        "illuminate/database": "^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rawaby88\\Portal\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Rawaby88\\Portal\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rawaby88\\Portal\\PortalServiceProvider"
+            ],
+            "aliases": {
+                "Portal": "Rawaby88\\Portal\\PortalFacade"
+            }
+        }
+    }
+}
