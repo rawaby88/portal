@@ -16,8 +16,9 @@ class AlterPortalUsersTable extends Migration
 	{
 		Schema::table( 'users', function ( Blueprint $table ) {
 			$table->dropColumn( 'id' );
-			$table->string( 'name' )->nullable()->change();
 			$table->uuid( 'user_id' )->first()->primary();
+			$table->string( 'name' )->nullable()->change();
+			$table->dropColumn('password');
 		} );
 	}
 	
@@ -33,6 +34,7 @@ class AlterPortalUsersTable extends Migration
 			$table->dropColumn( 'user_id' );
 			$table->id()->first();
 			$table->string( 'name' )->change();
+			$table->string('password');
 		} );
 	}
 }

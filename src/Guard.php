@@ -43,7 +43,7 @@ class Guard
 				return;
 			}
 			
-			return $this->findOrCreateUser();
+			return $this->findOrCreateUser($token);
 			
 		}
 		
@@ -96,7 +96,7 @@ class Guard
 	 * Find or create user to current service;
 	 */
 	protected
-	function findOrCreateUser ()
+	function findOrCreateUser ($token)
 	{
 		$response = $this->tokenResponse->object()->data;
 		
@@ -108,8 +108,13 @@ class Guard
 				                      'user_id' => $response->id,
 				                      'name'    => $response->name,
 				                      'email'   => $response->email,
+				                      'token'   => $token
 			                      ] );
 		}
+		
+		$user->setToken($token);
+		$user->setAppliance(request()->header('appliance') ?? null);
+		$user->setWorkspace($response->workspace);
 		
 		return $user;
 	}
