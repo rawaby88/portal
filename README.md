@@ -12,6 +12,17 @@ composer require rawaby88/portal
 ```
 
 ## Usage
+
+Add Portable trait to User model;
+
+```php
+use Rawaby88\Portal\Portable;
+
+
+use Portable;
+```
+
+
 Run migrate to update user table:
 
 ```bash
