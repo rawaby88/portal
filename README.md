@@ -1,11 +1,8 @@
-# Very short description of the package
+# Portal ⾨
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/rawaby88/portal.svg?style=flat-square)](https://packagist.org/packages/rawaby88/portal)
-[![Total Downloads](https://img.shields.io/packagist/dt/rawaby88/portal.svg?style=flat-square)](https://packagist.org/packages/rawaby88/portal)
-![GitHub Actions](https://github.com/rawaby88/portal/actions/workflows/main.yml/badge.svg)
+This package adding new guard ['portal'] to use on authenticated routes.
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
-
+it will check if user has valid Token and permissions to endpoint
 ## Installation
 
 You can install the package via composer:
@@ -15,24 +12,79 @@ composer require rawaby88/portal
 ```
 
 ## Usage
-
-```php
-// Usage description here
-```
-
-### Testing
+Run migrate to update user table:
 
 ```bash
-composer test
+php artisan migrate
+```
+Migration Customization
+
+If you are not going to use Portal's default migrations, 
+you should call the 
+```bash
+Portal::ignoreMigrations();
+```
+ method in the register method of your 
+ 
+```bash
+App\Providers\AppServiceProvider class.
+```
+You may export the default migrations by executing the following command: 
+```bash
+ php artisan vendor:publish --tag=portal-migrations
 ```
 
-### Changelog
+Usage by adding middleware 'auth:portal' to endpoints
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+```php
+Route::middleware('auth:portal')->get('/user', function (Request $request) {
+    return auth()->user()->token;
+});
+```
+ auth() functions will be available for you to use
 
-## Contributing
+```php
+auth()->check();
+auth()->id();
+auth()->user();
+auth()->user()->token;
+auth()->user()->appliance;
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+//you can also call other param as credit
+auth()->user()->credit;
+auth()->user()->workspace;
+```
+
+if you would like to change data stored in user table
+You may export the default config by executing the following command:
+```bash
+ php artisan vendor:publish --tag=portal-config
+```
+
+[/config/portal.php]
+```php
+return [
+	'auth_endpoint'       => env( 'PORTAL_AUTH_ENDPOINT', '172.17.0.1/api/auth/token/check/' ),
+	'expiration'          => null,
+	
+	//user mode namespace
+	'user_model'          => env( 'PORTAL_USER_MODEL', 'App\Models\User' ),
+	
+	// Mapping data from response to database
+    //add or remove fields as you wish   
+	'db_user_fields'      => [
+		'id'    => 'user_id',
+		'name'  => 'name',
+		'email' => 'email'
+	],
+	
+	// primary key for user table
+	'user_model_key'      => 'user_id',
+	
+	// primary key type -- don't change
+	'user_model_key_type' => 'string',
+];
+```
 
 ### Security
 
@@ -46,11 +98,3 @@ If you discover any security related issues, please email github@dreamod.pl inst
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Laravel Package Boilerplate
-
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
-
-
-##Migration Customization
-If you are not going to use Sanctum's default migrations, you should call the Sanctum::ignoreMigrations method in the register method of your App\Providers\AppServiceProvider class. You may export the default migrations by executing the following command: php artisan vendor:publish --tag=sanctum-migrations
