@@ -11,4 +11,11 @@ return [
 	],
 	'user_model_key'      => 'user_id',
 	'user_model_key_type' => 'string',
+	
+	'service' => [
+		'auth' => [
+			'url' => 'http://172.17.0.1'
+		],
+	]
+
 ];
