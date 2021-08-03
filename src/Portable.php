@@ -6,14 +6,18 @@ trait Portable
 {
 	public $token     = null;
 	public $appliance = null;
-	public $workspace = null;
+	public $data      = null;
 	
 	public
 	function initializePortable ()
 	{
-		$this->fillable[] = 'user_id';
-		$this->primaryKey = 'user_id';
-		$this->keyType    = 'string';
+		$this->primaryKey = config('portal.user_model_key');
+		$this->keyType    = config('portal.user_model_key_type');
+		
+		foreach (config('portal.db_user_fields') as $res => $field)
+		{
+			$this->fillable[] = $field;
+		}
 	}
 	
 	public
@@ -31,9 +35,15 @@ trait Portable
 	}
 	
 	public
-	function setWorkspace ( $workspace )
+	function setData ( $data )
 	: void
 	{
-		$this->workspace = $workspace;
+		$this->data = $data;
+	}
+	
+	public
+	function __get ( $name )
+	{
+		return $this->data->$name ?? null;
 	}
 }

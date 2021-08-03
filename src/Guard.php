@@ -2,88 +2,80 @@
 
 namespace Rawaby88\Portal;
 
-use App\Models\User;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 
 class Guard
 {
-	
 	protected $auth;
-	
 	protected $expiration;
-	
 	protected $provider;
 	protected $tokenResponse;
+	protected $token;
+	protected $userModel;
 	
-	public function __construct(AuthFactory $auth, $expiration = null, $provider = null)
+	
+	public
+	function __construct ( AuthFactory $auth, $expiration = null, $provider = null )
 	{
-		$this->auth = $auth;
+		$this->auth       = $auth;
 		$this->expiration = $expiration;
-		$this->provider = $provider;
+		$this->provider   = $provider;
+		$this->userModel = config('portal.user_model', 'App\Models\User');
 	}
 	
-	/**
-	 * Retrieve the authenticated user for the incoming request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @return mixed
-	 */
-	public function __invoke(Request $request)
+	public
+	function __invoke ()
 	{
-		if ($bearerToken = $request->bearerToken())
+		if ( $bearerToken = request()->bearerToken() )
 		{
-			$token = $this->findTokenString($bearerToken);
+			$this->findTokenString( $bearerToken );
 			
-			if (! $this->isValidAccessToken($token) )
+			if ( !$this->isValidAccessToken(  ) )
 			{
 				return;
 			}
 			
-			return $this->findOrCreateUser($token);
-			
+			return $this->findOrCreateUser( );
 		}
 		
 		return;
 	}
 	
-	
 	public
-	function findTokenString($bearerToken)
+	function findTokenString ( $bearerToken )
 	{
-		if (strpos($bearerToken, '|') === false)
+		if ( strpos( $bearerToken, '|' ) === false )
 		{
-			return $bearerToken;
+			$this->token = $bearerToken;
 		}
-		
-		[$id, $token] = explode('|', $bearerToken, 2);
-		
-		return $token;
+		else
+		{
+			[ $id, $this->token ] = explode( '|', $bearerToken, 2 );
+		}
 	}
 	
 	protected
-	function tokenResponse ($token)
+	function tokenResponse (  )
 	{
 		$this->tokenResponse = Http::post( config( 'portal.auth_endpoint' ), [
-			'token'        => $token,
+			'token'        => $this->token,
 			'workspace_id' => request()->workspace_id,
 			'appliance_id' => request()->appliance_id,
 			'route_name'   => request()->route_name,
 		] );
 	}
 	
-	
 	/**
 	 * Check token is valid and has permission
 	 */
 	protected
-	function isValidAccessToken ($token)
+	function isValidAccessToken ( )
 	: bool
 	{
-		$this->tokenResponse ($token);
+		$this->tokenResponse(  );
+		
 		if ( $this->tokenResponse->status() !== Response::HTTP_OK )
 		{
 			return false;
@@ -96,28 +88,38 @@ class Guard
 	 * Find or create user to current service;
 	 */
 	protected
-	function findOrCreateUser ($token)
+	function findOrCreateUser ( )
 	{
 		$response = $this->tokenResponse->object()->data;
 		
-		$user = User::find( $response->id );
+		$user = $this->userModel::find( $response->id );
 		
 		if ( !$user )
 		{
-			$user = User::create( [
-				                      'user_id' => $response->id,
-				                      'name'    => $response->name,
-				                      'email'   => $response->email,
-				                      'token'   => $token
-			                      ] );
+			$user = $this->userModel::create( $this->userFields($response));
 		}
 		
-		$user->setToken($token);
-		$user->setAppliance(request()->header('appliance') ?? null);
-		$user->setWorkspace($response->workspace);
+		$user->setAppliance( request()->header( 'appliance' ) ?? null );
+		$user->setToken( $this->token );
+		$user->setData( $response );
+
 		
 		return $user;
 	}
-
-   
+	
+	
+	protected
+	function userFields($response)
+	: array
+	{
+		$data = [];
+		
+		foreach (config('portal.db_user_fields') as $res => $field)
+		{
+			$data[$field] = $response->$res;
+		}
+		
+		return $data;
+	}
+	
 }

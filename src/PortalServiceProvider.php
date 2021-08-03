@@ -18,20 +18,22 @@ class PortalServiceProvider extends ServiceProvider
 		 * Optional methods to load your package assets
 		 */ // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'portal');
 		// $this->loadViewsFrom(__DIR__.'/../resources/views', 'portal');
-		 $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+		
 		// $this->loadRoutesFrom(__DIR__.'/routes.php');
 		
 		if ( $this->app->runningInConsole() )
 		{
+			$this->registerMigrations();
+			
 			$this->publishes( [
 				                  __DIR__ . '/../config/portal.php' => config_path( 'portal.php' ),
 			                  ], 'portal-config' );
 			
-//			$this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+			//			$this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 			
-			$this->publishes([
-				                 __DIR__.'/../database/migrations' => database_path('migrations'),
-			                 ], 'portal-migrations');
+			$this->publishes( [
+				                  __DIR__ . '/../database/migrations' => database_path( 'migrations' ),
+			                  ], 'portal-migrations' );
 			
 			// Publishing the views.
 			/*$this->publishes([
@@ -77,6 +79,15 @@ class PortalServiceProvider extends ServiceProvider
 		$this->app->singleton( 'portal', function () {
 			return new Portal;
 		} );
+	}
+	
+	protected
+	function registerMigrations ()
+	{
+		if ( Portal::shouldRunMigrations() )
+		{
+			$this->loadMigrationsFrom( __DIR__ . '/../database/migrations' );
+		}
 	}
 	
 	protected

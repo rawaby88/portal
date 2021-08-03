@@ -50,3 +50,7 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 ## Laravel Package Boilerplate
 
 This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
+
+
+##Migration Customization
+If you are not going to use Sanctum's default migrations, you should call the Sanctum::ignoreMigrations method in the register method of your App\Providers\AppServiceProvider class. You may export the default migrations by executing the following command: php artisan vendor:publish --tag=sanctum-migrations
