@@ -11,10 +11,11 @@ trait Portable
 	public
 	function initializePortable ()
 	{
-		$this->primaryKey = config('portal.user_model_key');
-		$this->keyType    = config('portal.user_model_key_type');
+		$this->primaryKey   = config( 'portal.user_model_key' );
+		$this->keyType      = config( 'portal.user_model_key_type' );
+		$this->incrementing = false;
 		
-		foreach (config('portal.db_user_fields') as $res => $field)
+		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
 		{
 			$this->fillable[] = $field;
 		}
