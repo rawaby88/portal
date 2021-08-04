@@ -62,8 +62,8 @@ auth()->user()->token;
 auth()->user()->appliance;
 
 //you can also call other param as credit
-auth()->user()->credit;
-auth()->user()->workspace;
+auth()->user()->getData('credit');
+auth()->user()->getData('workspace');
 ```
 
 if you would like to change data stored in user table

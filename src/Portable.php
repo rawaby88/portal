@@ -42,7 +42,7 @@ trait Portable
 	}
 	
 	public
-	function __get ( $name )
+	function getData ( $name )
 	{
 		return $this->data->$name ?? null;
 	}
