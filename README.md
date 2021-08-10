@@ -104,6 +104,7 @@ If you discover any security related issues, please email github@dreamod.pl inst
 ## Credits
 
 -   [Mahmoud Osman](https://github.com/rawaby88)
+-   [Rafał Andryanczyk](https://github.com/rafalandryanczyk)
 -   [All Contributors](../../contributors)
 
 ## License

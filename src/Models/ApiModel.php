@@ -18,12 +18,24 @@ class ApiModel
 	}
 	
 	public static
-	function callApi ( $link, $method, $params = [] )
+	function callApi ( $link, $method, $params = [], array $attachments = [] )
 	{
 		$response = Http::contentType( 'application/json' )->withToken( auth()->user()->token )
 		                ->accept( 'application/json' )->withHeaders( [
 			                                                             'appliance' => auth()->user()->appliance,
-		                                                             ] )->$method( $link, $params );
+		                                                             ] );
+		
+		
+		if (count($attachments)) {
+			foreach ($attachments as $attachment) {
+				$response = $response->attach(
+					$attachment['name'], file_get_contents($attachment['file']), $attachment['filename']
+				);
+			}
+		}
+		
+		
+		$response = $response->$method( $link, $params );
 		
 		$responseObject = $response->object();
 		
@@ -48,6 +60,23 @@ class ApiModel
 	function all ()
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'get', [] );
+		
+		return $apiResponse->object()->data;
+	}
+	
+	
+	public static
+	function create(array $params, array $attachments = [])
+	{
+		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachments );
+		
+		return $apiResponse->object()->data;
+	}
+	
+	public
+	static function delete(int $id)
+	{
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'delete' );
 		
 		return $apiResponse->object()->data;
 	}
