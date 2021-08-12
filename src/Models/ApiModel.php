@@ -39,6 +39,12 @@ class ApiModel
 		
 		$responseObject = $response->object();
 		
+		
+		if ( $response->status() == 404 )
+		{
+			return null;
+		}
+		
 		if ( !$responseObject->success )
 		{
 			throw new \Exception(  $responseObject->error->code . ' ' . $responseObject->error->message ,
@@ -53,7 +59,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', [] );
 		
-		return $apiResponse->object()->data;
+		return $apiResponse ? $apiResponse->object()->data : null;
 	}
 	
 	public static
@@ -61,7 +67,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'get', [] );
 		
-		return $apiResponse->object()->data;
+		return $apiResponse ? $apiResponse->object()->data : null;
 	}
 	
 	
@@ -70,7 +76,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachments );
 		
-		return $apiResponse->object()->data;
+		return $apiResponse ? $apiResponse->object()->data : null;
 	}
 	
 	public
@@ -78,7 +84,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'delete' );
 		
-		return $apiResponse->object()->data;
+		return $apiResponse ? $apiResponse->object()->data : null;
 	}
 	
 	public static
