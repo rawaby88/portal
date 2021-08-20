@@ -16,13 +16,15 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^7.3 || ^8.0",
         "ext-json": "*",
         "doctrine/dbal": "^3.1",
         "goldspecdigital/laravel-eloquent-uuid": "^8.0",
         "illuminate/contracts": "^8.0",
         "illuminate/database": "^8.0",
-        "illuminate/support": "^8.0"
+        "illuminate/support": "^8.0",
+        "spatie/crypto": "^2.0",
+      "ext-openssl": "*"
     },
     "require-dev": {
         "orchestra/testbench": "^6.0",

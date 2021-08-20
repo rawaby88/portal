@@ -2,7 +2,12 @@
 
 namespace Rawaby88\Portal\Models;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
+use Rawaby88\Portal\Encrypt;
+use Rawaby88\Portal\Exceptions\BadKey;
+use Rawaby88\Portal\Exceptions\InvalidData;
+use Rawaby88\Portal\Exceptions\KeyFileDoesNotExist;
 
 class ApiModel
 {
@@ -17,28 +22,39 @@ class ApiModel
 		//			$this->$field = null;
 	}
 	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 * @throws Exception
+	 */
 	public static
 	function callApi ( $link, $method, $params = [], array $attachments = [] )
 	{
-		$response = Http::contentType( 'application/json' )->withToken( auth()->user()->token )
+		$response = Http::contentType( 'application/json' )
 		                ->accept( 'application/json' )->withHeaders( [
-			                                                             'appliance' => auth()->user()->appliance,
+			                                                             'appliance' => auth()->user()->appliance ??
+			                                                                            config('portal.main_appliance'),
+			                                                             'service' => Encrypt::data(static::$service)
 		                                                             ] );
-		
-		
-		if (count($attachments)) {
-			foreach ($attachments as $attachment) {
-				$response = $response->attach(
-					$attachment['name'], file_get_contents($attachment['file']), $attachment['filename']
-				);
-			}
+		if(auth()->user() && auth()->user()->token)
+		{
+			$response = $response->withToken( auth()->user()->token );
 		}
 		
+		
+		if ( count( $attachments ) )
+		{
+			foreach ( $attachments as $attachment )
+			{
+				$response = $response->attach( $attachment[ 'name' ], file_get_contents( $attachment[ 'file' ] ),
+				                               $attachment[ 'filename' ] );
+			}
+		}
 		
 		$response = $response->$method( $link, $params );
 		
 		$responseObject = $response->object();
-		
 		
 		if ( $response->status() == 404 )
 		{
@@ -47,8 +63,8 @@ class ApiModel
 		
 		if ( !$responseObject->success )
 		{
-			throw new \Exception(  $responseObject->error->code . ' ' . $responseObject->error->message ,
-			                       $response->status());
+			throw new Exception( $responseObject->error->code . ' ' . $responseObject->error->message,
+			                      $response->status() );
 		}
 		
 		return $response;
@@ -70,17 +86,16 @@ class ApiModel
 		return $apiResponse ? $apiResponse->object()->data : null;
 	}
 	
-	
 	public static
-	function create(array $params, array $attachments = [])
+	function create ( array $params, array $attachments = [] )
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachments );
 		
 		return $apiResponse ? $apiResponse->object()->data : null;
 	}
 	
-	public
-	static function delete(int $id)
+	public static
+	function delete ( int $id )
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'delete' );
 		

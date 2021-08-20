@@ -28,7 +28,15 @@ class Guard
 	public
 	function __invoke ()
 	{
-		if ( $bearerToken = request()->bearerToken() )
+		if ( $service = request()->header('service') )
+		{
+			if(Decrypt::valid($service))
+			{
+				return 'pass';
+			}
+			return;
+		}
+		elseif ( $bearerToken = request()->bearerToken() )
 		{
 			$this->findTokenString( $bearerToken );
 			
