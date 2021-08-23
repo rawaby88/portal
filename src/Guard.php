@@ -32,8 +32,9 @@ class Guard
 		{
 			if(Decrypt::valid($service))
 			{
-				return 'pass';
+				return 'auth:machine';
 			}
+			
 			return;
 		}
 		elseif ( $bearerToken = request()->bearerToken() )

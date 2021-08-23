@@ -18,7 +18,7 @@ class Encrypt
 	function data ( $service )
 	: string
 	{
-		$serviceFileKey = config( 'portal.service.'. $service.'.public_key' );
+		$serviceFileKey = config( 'portal.service.'. $service.'.public_key' ) ?? $service.'.key';
 		
 		if ( !file_exists( $serviceFileKey ) )
 		{

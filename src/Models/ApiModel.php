@@ -3,6 +3,7 @@
 namespace Rawaby88\Portal\Models;
 
 use Exception;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Rawaby88\Portal\Encrypt;
 use Rawaby88\Portal\Exceptions\BadKey;
@@ -36,6 +37,7 @@ class ApiModel
 			                                                             'appliance' => auth()->user()->appliance ??
 			                                                                            config('portal.main_appliance'),
 			                                                             'service' => Encrypt::data(static::$service)
+			                                                                          .time()
 		                                                             ] );
 		if(auth()->user() && auth()->user()->token)
 		{
@@ -61,10 +63,17 @@ class ApiModel
 			return null;
 		}
 		
+		if($response->status() == Response::HTTP_FAILED_DEPENDENCY)
+		{
+			abort( Response::HTTP_FAILED_DEPENDENCY,  $responseObject->message );
+		}
+		
+		
 		if ( !$responseObject->success )
 		{
-			throw new Exception( $responseObject->error->code . ' ' . $responseObject->error->message,
-			                      $response->status() );
+			abort( $response->status() ,  $responseObject->error->code . ' ' . $responseObject->error->message );
+			//			throw new Exception( $responseObject->error->code . ' ' . $responseObject->error->message,
+			//			                      $response->status() );
 		}
 		
 		return $response;
@@ -94,6 +103,11 @@ class ApiModel
 		return $apiResponse ? $apiResponse->object()->data : null;
 	}
 	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
 	public static
 	function delete ( int $id )
 	{
@@ -101,6 +115,33 @@ class ApiModel
 		
 		return $apiResponse ? $apiResponse->object()->data : null;
 	}
+	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
+	public static
+	function get ( string $link )
+	{
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'get', [] );
+		
+		return $apiResponse ? $apiResponse->object()->data : null;
+	}
+	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
+	public static
+	function post ( string $link, array $params )
+	{
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'post', $params );
+		
+		return $apiResponse ? $apiResponse->object()->data : null;
+	}
+	
 	
 	public static
 	function serviceBaseUrl ()

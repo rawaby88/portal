@@ -10,6 +10,6 @@ class KeyFileDoesNotExist extends Exception
 	function make ( string $path )
 	: self
 	{
-		return new self( "There is no file at path: `{$path}`. or add service public_key in portal config" );
+		return new self( "There is no public key file at path: `{$path}` or there is no configuration for this service in portal config" );
 	}
 }

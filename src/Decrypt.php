@@ -2,38 +2,36 @@
 
 namespace Rawaby88\Portal;
 
-use Rawaby88\Portal\Exceptions\BadKey;
-use Rawaby88\Portal\Exceptions\KeyFileDoesNotExist;
+use Illuminate\Http\Response;
 
 class Decrypt
 {
 	
-	/**
-	 * @throws KeyFileDoesNotExist
-	 * @throws BadKey
-	 */
 	public static
 	function valid ( $service )
 	: bool
 	{
-		$serviceFilePrivateKey = config( 'portal.private_key' );
-		$passKey = config( 'portal.pass_key' );
+		$serviceFilePrivateKey = config( 'portal.private_key' ) ?? 'private_key';
+		$passKey               = config( 'portal.pass_key' );
+		$currentService        = config( 'portal.service_name' );
 		
 		if ( !file_exists( $serviceFilePrivateKey ) )
 		{
-			throw KeyFileDoesNotExist::make( $serviceFilePrivateKey );
+			abort( Response::HTTP_FAILED_DEPENDENCY,
+			       "Error with `{$currentService}` service: file: `{$serviceFilePrivateKey}` doesnt exists in `{$currentService}` service." );
 		}
 		
-		$servicePrivateKey = openssl_pkey_get_private(file_get_contents($serviceFilePrivateKey), $passKey);
+		$servicePrivateKey = openssl_pkey_get_private( file_get_contents( $serviceFilePrivateKey ), $passKey );
 		
-		if ($servicePrivateKey === false) {
-			throw BadKey::make('private');
+		if ( $servicePrivateKey === false )
+		{
+			abort( Response::HTTP_FAILED_DEPENDENCY,
+			       "Error with `{$currentService}` service: - Does not seem to be a valid privte key in `{$currentService}` service." );
 		}
 		
-		openssl_public_decrypt( base64_decode($service), $decrypted, $servicePrivateKey, OPENSSL_PKCS1_PADDING );
+		openssl_private_decrypt( base64_decode( $service ), $decrypted, $servicePrivateKey, OPENSSL_PKCS1_PADDING );
 		
-		
-		return ! is_null($decrypted);
+		return !is_null( $decrypted );
 	}
 	
 }

@@ -13,22 +13,24 @@ return [
 	'user_model_key'      => 'user_id',
 	'user_model_key_type' => 'string',
 	
-	'service' => [
-		'auth' => [
-			'url' => 'http://172.17.0.1',
-			'public_key' => storage_path('app/keys/auth.key'),
+	'service'         => [
+		'auth'  => [
+			'url'        => 'http://172.17.0.1',
+			'public_key' => base_path( 'keys/auth.key' ),
 		],
 		'media' => [
-			'url' => 'http://172.17.0.1:8002',
-			'public_key' => storage_path('app/keys/media.key'),
+			'url'        => 'http://172.17.0.1:8002',
+			'public_key' => base_path( 'keys/media.key' ),
 		],
-		'mbc' => [
-			'url' => 'http://172.17.0.1:8001',
-			'public_key' => storage_path('app/keys/mbc.key'),
+		'mbc'   => [
+			'url'        => 'http://172.17.0.1:8001',
+			'public_key' => base_path( 'keys/mbc.key' ),
 		],
 	],
 	
-	'private_key' => storage_path('app/keys/private_key'),
-	'pass_key' => '123456',
+	//change this to service name ex. auth , media or mbc
+	'current_service' => 'service_name',
+	'private_key'     => base_path( 'keys/private.key' ),
+	'pass_key'        => '123456',
 
 ];
