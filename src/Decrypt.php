@@ -31,7 +31,20 @@ class Decrypt
 		
 		openssl_private_decrypt( base64_decode( $service ), $decrypted, $servicePrivateKey, OPENSSL_PKCS1_PADDING );
 		
-		return !is_null( $decrypted );
+		if(is_null( $decrypted ))
+		{
+			return false;
+		}
+		
+		[$ser, $sentTime] = explode('|', $decrypted);
+		
+		
+		if( time() -  $sentTime > 3600 )
+		{
+			return false;
+		}
+		
+		return true;
 	}
 	
 }

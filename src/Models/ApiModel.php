@@ -37,7 +37,7 @@ class ApiModel
 			                                                             'appliance' => auth()->user()->appliance ??
 			                                                                            config('portal.main_appliance'),
 			                                                             'service' => Encrypt::data(static::$service)
-			                                                                          .time()
+			                                                                          
 		                                                             ] );
 		if(auth()->user() && auth()->user()->token)
 		{

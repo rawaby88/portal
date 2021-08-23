@@ -31,7 +31,7 @@ class Encrypt
 			throw BadKey::make('public');
 		}
 		
-		openssl_public_encrypt( $service, $encrypted, $serviceKey, OPENSSL_PKCS1_PADDING );
+		openssl_public_encrypt( $service. '|' .time(), $encrypted, $serviceKey, OPENSSL_PKCS1_PADDING );
 
 		if (is_null($encrypted)) {
 			throw InvalidData::make('encrypt');
