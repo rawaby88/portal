@@ -15,22 +15,22 @@ return [
 	
 	'service'         => [
 		'auth'  => [
-			'url'        => 'http://172.17.0.1',
+			'url'        => env('SERVICE_AUTH_URL','http://172.17.0.1'),
 			'public_key' => base_path( 'keys/auth.key' ),
 		],
 		'media' => [
-			'url'        => 'http://172.17.0.1:8002',
+			'url'        => env('SERVICE_MEDIA_URL','http://172.17.0.1:8002'),
 			'public_key' => base_path( 'keys/media.key' ),
 		],
 		'mbc'   => [
-			'url'        => 'http://172.17.0.1:8001',
+			'url'        => env('SERVICE_MBC_URL','http://172.17.0.1:8001'),
 			'public_key' => base_path( 'keys/mbc.key' ),
 		],
 	],
 	
 	//change this to service name ex. auth , media or mbc
-	'current_service' => 'service_name',
+	'current_service' => env('SERVICE_NAME','service_name'),
 	'private_key'     => base_path( 'keys/private.key' ),
-	'pass_key'        => '123456',
+	'pass_key'        => env('SERVICE_PASS_KEY','123456'),
 
 ];
