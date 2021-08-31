@@ -26,6 +26,10 @@ return [
 			'url'        => env('SERVICE_MBC_URL','http://172.17.0.1:8001'),
 			'public_key' => base_path( 'keys/mbc.key' ),
 		],
+		'link'   => [
+			'url'        => env('SERVICE_MBC_URL','http://172.17.0.1:8003'),
+			'public_key' => base_path( 'keys/link.key' ),
+		],
 	],
 	
 	//change this to service name ex. auth , media or mbc

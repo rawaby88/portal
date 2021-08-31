@@ -20,6 +20,13 @@ class Portal
 	}
 	
 	public static
+	function service ( $service )
+	: string
+	{
+		return  Encrypt::data($service);
+	}
+	
+	public static
 	function shouldRunMigrations ()
 	: bool
 	{
