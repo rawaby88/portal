@@ -9,6 +9,7 @@ use Rawaby88\Portal\Encrypt;
 use Rawaby88\Portal\Exceptions\BadKey;
 use Rawaby88\Portal\Exceptions\InvalidData;
 use Rawaby88\Portal\Exceptions\KeyFileDoesNotExist;
+use Rawaby88\Portal\Exceptions\ResponseException;
 
 class ApiModel
 {
@@ -60,20 +61,23 @@ class ApiModel
 		
 		if ( $response->status() == 404 )
 		{
-			return null;
+			throw new ResponseException( 'not found', 404, static::$service);
 		}
+		
 		
 		if($response->status() == Response::HTTP_FAILED_DEPENDENCY)
 		{
-			abort( Response::HTTP_FAILED_DEPENDENCY,  $responseObject->message );
+			throw new ResponseException( $responseObject->message, Response::HTTP_FAILED_DEPENDENCY, static::$service);
 		}
+		
 		
 		
 		if ( !$responseObject->success )
 		{
-			abort( $response->status() ,  $responseObject->error->code . ' ' . $responseObject->error->message );
-			//			throw new Exception( $responseObject->error->code . ' ' . $responseObject->error->message,
-			//			                      $response->status() );
+			$ex =  new ResponseException($responseObject->error->code, $response->status(),static::$service);
+			$ex->withData($response->json());
+			
+			throw $ex;
 		}
 		
 		return $response;
@@ -84,7 +88,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', [] );
 		
-		return $apiResponse ? $apiResponse->object()->data : null;
+		return $apiResponse->object()->data;
 	}
 	
 	public static
@@ -92,7 +96,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'get', [] );
 		
-		return $apiResponse ? $apiResponse->object()->data : null;
+		return $apiResponse->object()->data;
 	}
 	
 	public static
@@ -100,7 +104,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachments );
 		
-		return $apiResponse ? $apiResponse->object()->data : null;
+		return $apiResponse->object()->data;
 	}
 	
 	/**
@@ -113,7 +117,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'delete' );
 		
-		return $apiResponse ? $apiResponse->object()->data : null;
+		return $apiResponse->object()->data;
 	}
 	
 	/**
@@ -126,7 +130,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'get', [] );
 		
-		return $apiResponse ? $apiResponse->object()->data : null;
+		return $apiResponse->object()->data;
 	}
 	
 	/**
@@ -139,7 +143,7 @@ class ApiModel
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'post', $params );
 		
-		return $apiResponse ? $apiResponse->object()->data : null;
+		return $apiResponse->object()->data;
 	}
 	
 	
