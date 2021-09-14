@@ -64,6 +64,15 @@ class ApiModel
 			throw new ResponseException( 'not found', 404, static::$service);
 		}
 		
+		if ( $response->status() == 500)
+		{
+			$ex = new ResponseException( 'Internal Server Error', 500, static::$service);
+			
+			$ex->withData($response->json());
+			
+			throw $ex;
+		}
+		
 		
 		if($response->status() == Response::HTTP_FAILED_DEPENDENCY)
 		{
