@@ -3,6 +3,7 @@
 namespace Rawaby88\Portal\Models;
 
 use Exception;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Rawaby88\Portal\Encrypt;
@@ -31,7 +32,7 @@ class ApiModel
 	 * @throws Exception
 	 */
 	public static
-	function callApi ( $link, $method, $params = [], array $attachments = [] )
+	function callApi ( $link, $method, $params = [], $attachment = null)
 	{
 		$response = Http::contentType( 'application/json' )
 		                ->accept( 'application/json' )->withHeaders( [
@@ -40,19 +41,21 @@ class ApiModel
 			                                                             'service' => Encrypt::data(static::$service)
 			                                                                          
 		                                                             ] );
-		if(auth()->user() && auth()->user()->token)
+		
+		if(auth()->user() instanceof Authenticatable && auth()->user()->token)
 		{
 			$response = $response->withToken( auth()->user()->token );
 		}
 		
 		
-		if ( count( $attachments ) )
+		if ( $attachment )
 		{
-			foreach ( $attachments as $attachment )
-			{
-				$response = $response->attach( $attachment[ 'name' ], file_get_contents( $attachment[ 'file' ] ),
-				                               $attachment[ 'filename' ] );
-			}
+			$response = $response->asMultipart();
+			$response = $response->attach( 'file', file_get_contents( $attachment ), 'file.jpg' );
+		}
+		else
+		{
+			$response = $response->contentType( 'application/json' );
 		}
 		
 		$response = $response->$method( $link, $params );
@@ -92,6 +95,11 @@ class ApiModel
 		return $response;
 	}
 	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
 	public static
 	function find ( $id )
 	{
@@ -100,6 +108,11 @@ class ApiModel
 		return $apiResponse->object()->data;
 	}
 	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
 	public static
 	function all ()
 	{
@@ -108,10 +121,15 @@ class ApiModel
 		return $apiResponse->object()->data;
 	}
 	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
 	public static
-	function create ( array $params, array $attachments = [] )
+	function create ( array $params, array $attachment = null )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachments );
+		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachment );
 		
 		return $apiResponse->object()->data;
 	}
