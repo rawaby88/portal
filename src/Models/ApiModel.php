@@ -127,7 +127,7 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function create ( array $params, array $attachment = null )
+	function create ( array $params, $attachment = null )
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachment );
 		
