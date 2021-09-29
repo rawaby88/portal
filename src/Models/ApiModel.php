@@ -34,8 +34,7 @@ class ApiModel
 	public static
 	function callApi ( $link, $method, $params = [], $attachment = null)
 	{
-		$response = Http::contentType( 'application/json' )
-		                ->accept( 'application/json' )->withHeaders( [
+		$response = Http::accept( 'application/json' )->withHeaders( [
 			                                                             'appliance' => auth()->user()->appliance ??
 			                                                                            config('portal.main_appliance'),
 			                                                             'service' => Encrypt::data(static::$service)
@@ -51,7 +50,7 @@ class ApiModel
 		if ( $attachment )
 		{
 			$response = $response->asMultipart();
-			$response = $response->attach( 'file', file_get_contents( $attachment ), 'file.jpg' );
+			$response = $response->attach( 'file', file_get_contents( $attachment ), 'file' );
 		}
 		else
 		{
