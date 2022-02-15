@@ -39,7 +39,7 @@ class Decrypt
 		[$ser, $sentTime] = explode('|', $decrypted);
 		
 		
-		if( time() -  $sentTime > 3600 )
+		if( time() -  $sentTime > config( 'portal.ttl' ) )
 		{
 			return false;
 		}
