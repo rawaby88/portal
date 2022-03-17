@@ -14,14 +14,20 @@ class AlterPortalUsersTable extends Migration
 	public
 	function up ()
 	{
-		Schema::table( 'users', function ( Blueprint $table ) {
+		Schema::table( 'users', function ( Blueprint $table )
+		{
 			$table->dropColumn( 'id' );
-			$table->string( 'name' )->nullable()->change();
-			$table->dropColumn('password');
+			$table->string( 'name' )
+			      ->nullable()
+			      ->change();
+			$table->dropColumn( 'password' );
 		} );
 		
-		Schema::table( 'users', function ( Blueprint $table ) {
-			$table->uuid( 'user_id' )->first()->primary();
+		Schema::table( 'users', function ( Blueprint $table )
+		{
+			$table->uuid( 'user_id' )
+			      ->first()
+			      ->primary();
 		} );
 	}
 	
@@ -33,17 +39,19 @@ class AlterPortalUsersTable extends Migration
 	public
 	function down ()
 	{
-		Schema::table( 'users', function ( Blueprint $table ) {
+		Schema::table( 'users', function ( Blueprint $table )
+		{
 			$table->dropPrimary();
 			$table->dropColumn( 'user_id' );
-			$table->string( 'name' )->change();
-			$table->string('password');
+			$table->string( 'name' )
+			      ->change();
+			$table->string( 'password' );
 		} );
 		
-		Schema::table( 'users', function ( Blueprint $table ) {
-			
-			$table->id()->first();
-			
+		Schema::table( 'users', function ( Blueprint $table )
+		{
+			$table->id()
+			      ->first();
 		} );
 	}
 }

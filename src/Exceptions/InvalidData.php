@@ -6,8 +6,9 @@ use Exception;
 
 class InvalidData extends Exception
 {
-	public static function make(string $type ): self
+	public static
+	function make ( string $type ): self
 	{
-		return new self("Empty data, couldn't `{$type}` data.");
+		return new self( "Empty data, couldn't `{$type}` data." );
 	}
 }

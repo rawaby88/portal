@@ -57,30 +57,6 @@ class PortalServiceProvider extends ServiceProvider
 		$this->configureGuard();
 	}
 	
-	/**
-	 * Register the application services.
-	 */
-	public
-	function register ()
-	{
-		config( [
-			        'auth.guards.portal' => array_merge( [
-				                                             'driver'   => 'portal',
-				                                             'provider' => null,
-			                                             ], config( 'auth.guards.portal', [] ) ),
-		        ] );
-		
-		if ( !app()->configurationIsCached() )
-		{
-			$this->mergeConfigFrom( __DIR__ . '/../config/portal.php', 'portal' );
-		}
-		
-		// Register the main class to use with the facade
-		$this->app->singleton( 'portal', function () {
-			return new Portal;
-		} );
-	}
-	
 	protected
 	function registerMigrations ()
 	{
@@ -93,9 +69,12 @@ class PortalServiceProvider extends ServiceProvider
 	protected
 	function configureGuard ()
 	{
-		Auth::resolved( function ( $auth ) {
-			$auth->extend( 'portal', function ( $app, $name, array $config ) use ( $auth ) {
-				return tap( $this->createGuard( $auth, $config ), function ( $guard ) {
+		Auth::resolved( function ( $auth )
+		{
+			$auth->extend( 'portal', function ( $app, $name, array $config ) use ( $auth )
+			{
+				return tap( $this->createGuard( $auth, $config ), function ( $guard )
+				{
 					app()->refresh( 'request', $guard, 'setRequest' );
 				} );
 			} );
@@ -103,10 +82,34 @@ class PortalServiceProvider extends ServiceProvider
 	}
 	
 	protected
-	function createGuard ( $auth, $config )
-	: RequestGuard
+	function createGuard ( $auth, $config ): RequestGuard
 	{
 		return new RequestGuard( new Guard( $auth, config( 'portal.expiration' ), $config[ 'provider' ] ), request(),
-		                         $auth->createUserProvider( $config[ 'provider' ] ?? null ) );
+		                         $auth->createUserProvider( $config[ 'provider' ] ?? NULL ) );
+	}
+	
+	/**
+	 * Register the application services.
+	 */
+	public
+	function register ()
+	{
+		config( [
+			        'auth.guards.portal' => array_merge( [
+				                                             'driver'   => 'portal',
+				                                             'provider' => NULL,
+			                                             ], config( 'auth.guards.portal', [] ) ),
+		        ] );
+		
+		if ( !app()->configurationIsCached() )
+		{
+			$this->mergeConfigFrom( __DIR__ . '/../config/portal.php', 'portal' );
+		}
+		
+		// Register the main class to use with the facade
+		$this->app->singleton( 'portal', function ()
+		{
+			return new Portal;
+		} );
 	}
 }

@@ -5,14 +5,16 @@ namespace Rawaby88\Portal;
 class Portal
 {
 	
-	public static $runsMigrations = true;
+	public static $runsMigrations = TRUE;
 	
 	public static
 	function actingAs ( $user )
 	{
 		$guard = 'portal';
 		
-		app( 'auth' )->guard( $guard )->setUser( $user );
+		app( 'auth' )
+			->guard( $guard )
+			->setUser( $user );
 		
 		app( 'auth' )->shouldUse( $guard );
 		
@@ -20,24 +22,21 @@ class Portal
 	}
 	
 	public static
-	function service ( $service )
-	: string
+	function service ( $service ): string
 	{
-		return  Encrypt::data($service);
+		return Encrypt::data( $service );
 	}
 	
 	public static
-	function shouldRunMigrations ()
-	: bool
+	function shouldRunMigrations (): bool
 	{
 		return static::$runsMigrations;
 	}
 	
 	public static
-	function ignoreMigrations ()
-	: Portal
+	function ignoreMigrations (): Portal
 	{
-		static::$runsMigrations = false;
+		static::$runsMigrations = FALSE;
 		
 		return new static;
 	}

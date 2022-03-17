@@ -15,22 +15,21 @@ class Guard
 	protected $token;
 	protected $userModel;
 	
-	
 	public
-	function __construct ( AuthFactory $auth, $expiration = null, $provider = null )
+	function __construct ( AuthFactory $auth, $expiration = NULL, $provider = NULL )
 	{
 		$this->auth       = $auth;
 		$this->expiration = $expiration;
 		$this->provider   = $provider;
-		$this->userModel = config('portal.user_model', 'App\Models\User');
+		$this->userModel  = config( 'portal.user_model', 'App\Models\User' );
 	}
 	
 	public
 	function __invoke ()
 	{
-		if ( $service = request()->header('service') )
+		if ( $service = request()->header( 'service' ) )
 		{
-			if(Decrypt::valid($service))
+			if ( Decrypt::valid( $service ) )
 			{
 				return 'auth:machine';
 			}
@@ -41,12 +40,12 @@ class Guard
 		{
 			$this->findTokenString( $bearerToken );
 			
-			if ( !$this->isValidAccessToken(  ) )
+			if ( !$this->isValidAccessToken() )
 			{
 				return;
 			}
 			
-			return $this->findOrCreateUser( );
+			return $this->findOrCreateUser();
 		}
 		
 		return;
@@ -55,18 +54,37 @@ class Guard
 	public
 	function findTokenString ( $bearerToken )
 	{
-		if ( strpos( $bearerToken, '|' ) === false )
+		if ( strpos( $bearerToken, '|' ) === FALSE )
 		{
 			$this->token = $bearerToken;
 		}
 		else
 		{
-			[ $id, $this->token ] = explode( '|', $bearerToken, 2 );
+			[
+				$id,
+				$this->token,
+			] = explode( '|', $bearerToken, 2 );
 		}
 	}
 	
+	/**
+	 * Check token is valid and has permission
+	 */
 	protected
-	function tokenResponse (  )
+	function isValidAccessToken (): bool
+	{
+		$this->tokenResponse();
+		
+		if ( $this->tokenResponse->status() !== Response::HTTP_OK )
+		{
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+	
+	protected
+	function tokenResponse ()
 	{
 		$this->tokenResponse = Http::post( config( 'portal.auth_endpoint' ), [
 			'token'        => $this->token,
@@ -77,27 +95,10 @@ class Guard
 	}
 	
 	/**
-	 * Check token is valid and has permission
-	 */
-	protected
-	function isValidAccessToken ( )
-	: bool
-	{
-		$this->tokenResponse(  );
-		
-		if ( $this->tokenResponse->status() !== Response::HTTP_OK )
-		{
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
 	 * Find or create user to current service;
 	 */
 	protected
-	function findOrCreateUser ( )
+	function findOrCreateUser ()
 	{
 		$response = $this->tokenResponse->object()->data;
 		
@@ -105,27 +106,24 @@ class Guard
 		
 		if ( !$user )
 		{
-			$user = $this->userModel::create( $this->userFields($response));
+			$user = $this->userModel::create( $this->userFields( $response ) );
 		}
 		
-		$user->setAppliance( request()->header( 'appliance' ) ?? null );
+		$user->setAppliance( request()->header( 'appliance' ) ?? NULL );
 		$user->setToken( $this->token );
 		$user->setData( $response );
-
 		
 		return $user;
 	}
 	
-	
 	protected
-	function userFields($response)
-	: array
+	function userFields ( $response ): array
 	{
 		$data = [];
 		
-		foreach (config('portal.db_user_fields') as $res => $field)
+		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
 		{
-			$data[$field] = $response->$res;
+			$data[ $field ] = $response->$res;
 		}
 		
 		return $data;

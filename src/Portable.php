@@ -4,16 +4,16 @@ namespace Rawaby88\Portal;
 
 trait Portable
 {
-	public $token     = null;
-	public $appliance = null;
-	public $data      = null;
+	public $token     = NULL;
+	public $appliance = NULL;
+	public $data      = NULL;
 	
 	public
 	function initializePortable ()
 	{
 		$this->primaryKey   = config( 'portal.user_model_key' );
 		$this->keyType      = config( 'portal.user_model_key_type' );
-		$this->incrementing = false;
+		$this->incrementing = FALSE;
 		
 		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
 		{
@@ -22,29 +22,26 @@ trait Portable
 	}
 	
 	public
-	function setToken ( $token )
-	: void
+	function setToken ( $token ): void
 	{
 		$this->token = $token;
 	}
 	
 	public
-	function setAppliance ( $appliance )
-	: void
+	function setAppliance ( $appliance ): void
 	{
 		$this->appliance = $appliance;
 	}
 	
 	public
-	function setData ( $data )
-	: void
+	function getData ( $name )
 	{
-		$this->data = $data;
+		return $this->data->$name ?? NULL;
 	}
 	
 	public
-	function getData ( $name )
+	function setData ( $data ): void
 	{
-		return $this->data->$name ?? null;
+		$this->data = $data;
 	}
 }

@@ -8,6 +8,4 @@ class Card extends ApiModel
 	public static $baseUrl = 'api/sharecards';
 	public static $service = 'mbc';
 	
-	
-	
 }

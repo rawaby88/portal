@@ -15,28 +15,29 @@ class Encrypt
 	 * @throws BadKey
 	 */
 	public static
-	function data ( $service )
-	: string
+	function data ( $service ): string
 	{
-		$serviceFileKey = config( 'portal.service.'. $service.'.public_key' ) ?? $service.'.key';
+		$serviceFileKey = config( 'portal.service.' . $service . '.public_key' ) ?? $service . '.key';
 		
 		if ( !file_exists( $serviceFileKey ) )
 		{
 			throw KeyFileDoesNotExist::make( $serviceFileKey );
 		}
 		
-		$serviceKey = openssl_pkey_get_public(file_get_contents($serviceFileKey));
+		$serviceKey = openssl_pkey_get_public( file_get_contents( $serviceFileKey ) );
 		
-		if ($serviceKey === false) {
-			throw BadKey::make('public');
+		if ( $serviceKey === FALSE )
+		{
+			throw BadKey::make( 'public' );
 		}
 		
-		openssl_public_encrypt( $service. '|' .time(), $encrypted, $serviceKey, OPENSSL_PKCS1_PADDING );
-
-		if (is_null($encrypted)) {
-			throw InvalidData::make('encrypt');
+		openssl_public_encrypt( $service . '|' . time(), $encrypted, $serviceKey, OPENSSL_PKCS1_PADDING );
+		
+		if ( is_null( $encrypted ) )
+		{
+			throw InvalidData::make( 'encrypt' );
 		}
 		
-		return base64_encode($encrypted);
+		return base64_encode( $encrypted );
 	}
 }

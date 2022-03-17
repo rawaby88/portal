@@ -8,8 +8,7 @@ class Decrypt
 {
 	
 	public static
-	function valid ( $service )
-	: bool
+	function valid ( $service ): bool
 	{
 		$serviceFilePrivateKey = config( 'portal.private_key' ) ?? 'private_key';
 		$passKey               = config( 'portal.pass_key' );
@@ -23,7 +22,7 @@ class Decrypt
 		
 		$servicePrivateKey = openssl_pkey_get_private( file_get_contents( $serviceFilePrivateKey ), $passKey );
 		
-		if ( $servicePrivateKey === false )
+		if ( $servicePrivateKey === FALSE )
 		{
 			abort( Response::HTTP_FAILED_DEPENDENCY,
 			       "Error with `{$currentService}` service: - Does not seem to be a valid privte key in `{$currentService}` service." );
@@ -31,20 +30,22 @@ class Decrypt
 		
 		openssl_private_decrypt( base64_decode( $service ), $decrypted, $servicePrivateKey, OPENSSL_PKCS1_PADDING );
 		
-		if(is_null( $decrypted ))
+		if ( is_null( $decrypted ) )
 		{
-			return false;
+			return FALSE;
 		}
 		
-		[$ser, $sentTime] = explode('|', $decrypted);
+		[
+			$ser,
+			$sentTime,
+		] = explode( '|', $decrypted );
 		
-		
-		if( time() -  $sentTime > config( 'portal.ttl' ) )
+		if ( time() - $sentTime > config( 'portal.ttl' ) )
 		{
-			return false;
+			return FALSE;
 		}
 		
-		return true;
+		return TRUE;
 	}
 	
 }

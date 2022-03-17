@@ -21,8 +21,7 @@ class ResponseException extends Exception
 	}
 	
 	public
-	function render ( $request )
-	: JsonResponse
+	function render ( $request ): JsonResponse
 	{
 		return $this->handleAjax();
 	}
@@ -31,20 +30,18 @@ class ResponseException extends Exception
 	 * Handle an ajax response.
 	 */
 	private
-	function handleAjax ()
-	: JsonResponse
+	function handleAjax (): JsonResponse
 	{
 		return response()->json( [
-			                         'error'   => true,
+			                         'error'   => TRUE,
 			                         'service' => $this->service,
 			                         'message' => $this->getMessage(),
-			                         'data'    => $this->data
+			                         'data'    => $this->data,
 		                         ], $this->status );
 	}
 	
 	public
-	function withData ( array $data )
-	: ResponseException
+	function withData ( array $data ): ResponseException
 	{
 		$this->data = $data;
 		
@@ -52,8 +49,7 @@ class ResponseException extends Exception
 	}
 	
 	public
-	function withStatus ( $status )
-	: ResponseException
+	function withStatus ( $status ): ResponseException
 	{
 		$this->status = $status;
 		

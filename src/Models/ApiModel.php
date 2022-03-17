@@ -29,23 +29,36 @@ class ApiModel
 	 * @throws KeyFileDoesNotExist
 	 * @throws InvalidData
 	 * @throws BadKey
+	 */
+	public static
+	function find ( $id )
+	{
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', [] );
+		
+		return $apiResponse->object()->data;
+	}
+	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
 	 * @throws Exception
 	 */
 	public static
-	function callApi ( $link, $method, $params = [], $attachment = null)
+	function callApi ( $link, $method, $params = [], $attachment = NULL )
 	{
-		$response = Http::accept( 'application/json' )->withHeaders( [
-			                                                             'appliance' => auth()->user()->appliance ??
-			                                                                            config('portal.main_appliance'),
-			                                                             'service' => Encrypt::data(static::$service)
-			                                                                          
-		                                                             ] );
+		$response = Http::accept( 'application/json' )
+		                ->withHeaders( [
+			                               'appliance' => auth()->user()->appliance ??
+			                                              config( 'portal.main_appliance' ),
+			                               'service'   => Encrypt::data( static::$service ),
 		
-		if(auth()->user() instanceof Authenticatable && auth()->user()->token)
+		                               ] );
+		
+		if ( auth()->user() instanceof Authenticatable && auth()->user()->token )
 		{
 			$response = $response->withToken( auth()->user()->token );
 		}
-		
 		
 		if ( $attachment )
 		{
@@ -63,30 +76,27 @@ class ApiModel
 		
 		if ( $response->status() == 404 )
 		{
-			throw new ResponseException( 'not found', 404, static::$service);
+			throw new ResponseException( 'not found', 404, static::$service );
 		}
 		
-		if ( $response->status() == 500)
+		if ( $response->status() == 500 )
 		{
-			$ex = new ResponseException( 'Internal Server Error', 500, static::$service);
+			$ex = new ResponseException( 'Internal Server Error', 500, static::$service );
 			
-			$ex->withData($response->json());
+			$ex->withData( $response->json() );
 			
 			throw $ex;
 		}
 		
-		
-		if($response->status() == Response::HTTP_FAILED_DEPENDENCY)
+		if ( $response->status() == Response::HTTP_FAILED_DEPENDENCY )
 		{
-			throw new ResponseException( $responseObject->message, Response::HTTP_FAILED_DEPENDENCY, static::$service);
+			throw new ResponseException( $responseObject->message, Response::HTTP_FAILED_DEPENDENCY, static::$service );
 		}
-		
-		
 		
 		if ( !$responseObject->success )
 		{
-			$ex =  new ResponseException($responseObject->error->code, $response->status(),static::$service);
-			$ex->withData($response->json());
+			$ex = new ResponseException( $responseObject->error->code, $response->status(), static::$service );
+			$ex->withData( $response->json() );
 			
 			throw $ex;
 		}
@@ -94,17 +104,10 @@ class ApiModel
 		return $response;
 	}
 	
-	/**
-	 * @throws KeyFileDoesNotExist
-	 * @throws InvalidData
-	 * @throws BadKey
-	 */
 	public static
-	function find ( $id )
+	function serviceBaseUrl (): string
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', [] );
-		
-		return $apiResponse->object()->data;
+		return config( 'portal.service.' . static::$service . '.url' ) . '/' . static::$baseUrl;
 	}
 	
 	/**
@@ -126,7 +129,7 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function create ( array $params, $attachment = null )
+	function create ( array $params, $attachment = NULL )
 	{
 		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachment );
 		
@@ -170,13 +173,5 @@ class ApiModel
 		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'post', $params );
 		
 		return $apiResponse->object()->data;
-	}
-	
-	
-	public static
-	function serviceBaseUrl ()
-	: string
-	{
-		return config( 'portal.service.' . static::$service . '.url' ) . '/' . static::$baseUrl;
 	}
 }
