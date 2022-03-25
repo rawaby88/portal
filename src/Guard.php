@@ -88,8 +88,6 @@ class Guard
 	{
 		$this->tokenResponse = Http::post( config( 'portal.auth_endpoint' ), [
 			'token'        => $this->token,
-			'workspace_id' => request()->workspace_id,
-			'appliance_id' => request()->appliance_id,
 			'route_name'   => request()->route_name,
 		] );
 	}
