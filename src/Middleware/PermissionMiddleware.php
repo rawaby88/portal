@@ -27,6 +27,7 @@ class PermissionMiddleware
 			$permission = Http::get( config( 'portal.service.auth.url' ) .'/api/auth/token/can', [
 				'token' => request()->token ?? auth()->user()->token,
 				'route_name'   => $routeName,
+				'service'      => config('portal.current_service')
 			] );
 			
 			
