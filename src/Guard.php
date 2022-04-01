@@ -5,7 +5,7 @@ namespace Rawaby88\Portal;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Route;
+
 
 class Guard
 {
@@ -30,6 +30,7 @@ class Guard
 	{
 		if ( $service = request()->header( 'service' ) )
 		{
+			
 			if ( Decrypt::valid( $service ) )
 			{
 				return 'auth:machine';
@@ -37,9 +38,13 @@ class Guard
 			
 			return;
 		}
-		elseif ( $bearerToken = request()->bearerToken() )
+		elseif ( $this->token = request()->bearerToken() )
 		{
-			$this->findTokenString( $bearerToken );
+			if(config('portal.current_service') === 'auth')
+			{
+				return $this->tokenValidationOnAuthService();
+			}
+			
 			
 			if ( !$this->isValidAccessToken() )
 			{
@@ -52,24 +57,34 @@ class Guard
 		return;
 	}
 	
-	public
-	function findTokenString ( $bearerToken )
+	/**
+	 * Check token is valid while in auth service
+	 */
+	protected
+	function tokenValidationOnAuthService()
 	{
-		if ( strpos( $bearerToken, '|' ) === FALSE )
+		$accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($this->token);
+		
+		if ( !$accessToken )
 		{
-			$this->token = $bearerToken;
+			return;
 		}
-		else
+		
+		if ( $accessToken->updated_at->lte( now()->subMinutes( config( 'sanctum.expiration' ) ) ) )
 		{
-			[
-				$id,
-				$this->token,
-			] = explode( '|', $bearerToken, 2 );
+			$accessToken->delete();
+			
+			return;
 		}
+		
+		$accessToken->touch();
+		
+		return 'auth:user';
 	}
 	
+	
 	/**
-	 * Check token is valid and has permission
+	 * Check token is valid by sending token to auth service
 	 */
 	protected
 	function isValidAccessToken (): bool
@@ -87,11 +102,11 @@ class Guard
 	protected
 	function tokenResponse ()
 	{
-		$route = Route::getRoutes()->match( request() );
+		//		$route = Route::getRoutes()->match( request() );
 		
 		$this->tokenResponse = Http::post( config( 'portal.auth_endpoint' ), [
 			'token'        => $this->token,
-			'route_name'   => $route->getName(),
+			//			'route_name'   => $route->getName(),
 			'service'      => config('portal.current_service')
 		] );
 	}
@@ -109,11 +124,10 @@ class Guard
 		if ( !$user )
 		{
 			$user = $this->userModel::create( $this->userFields( $response ) );
+			$user->setData( $response );
 		}
 		
-		$user->setAppliance( request()->header( 'appliance' ) ?? NULL );
 		$user->setToken( $this->token );
-		$user->setData( $response );
 		
 		return $user;
 	}

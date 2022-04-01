@@ -31,9 +31,9 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function find ( $id )
+	function find ( $id, $params = [] )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', [] );
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', $params );
 		
 		return $apiResponse->object()->data;
 	}
