@@ -116,9 +116,9 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function all ()
+	function all ($params = [])
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl(), 'get', [] );
+		$apiResponse = static::callApi( static::serviceBaseUrl(), 'get', $params );
 		
 		return $apiResponse->object()->data;
 	}
@@ -142,9 +142,9 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function delete ( int $id )
+	function delete ( int $id, $params = [] )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'delete' );
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'delete', $params );
 		
 		return $apiResponse->object()->data;
 	}
@@ -155,9 +155,9 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function get ( string $link )
+	function get ( string $link, array $params = [] )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'get', [] );
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'get', $params );
 		
 		return $apiResponse->object()->data;
 	}
