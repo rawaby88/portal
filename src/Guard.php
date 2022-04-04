@@ -45,7 +45,7 @@ class Guard
 		{
 			if ( Decrypt::valid( $service ) )
 			{
-				return 'auth:machine';
+				return Portal::actingAs(new $this->userModel());
 			}
 		}
 		
