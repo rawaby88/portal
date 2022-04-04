@@ -74,7 +74,7 @@ class Guard
 		
 		$accessToken->touch();
 		
-		return 'auth:user';
+		return $this->userModel::find( $accessToken->tokenable_id );
 	}
 	
 	/**
