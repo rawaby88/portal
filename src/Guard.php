@@ -6,7 +6,6 @@ use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 
-
 class Guard
 {
 	protected $auth;
@@ -28,23 +27,12 @@ class Guard
 	public
 	function __invoke ()
 	{
-		if ( $service = request()->header( 'service' ) )
+		if ( $this->token = request()->bearerToken() )
 		{
-			
-			if ( Decrypt::valid( $service ) )
-			{
-				return 'auth:machine';
-			}
-			
-			return;
-		}
-		elseif ( $this->token = request()->bearerToken() )
-		{
-			if(config('portal.current_service') === 'auth')
+			if ( config( 'portal.current_service' ) === 'auth' )
 			{
 				return $this->tokenValidationOnAuthService();
 			}
-			
 			
 			if ( !$this->isValidAccessToken() )
 			{
@@ -52,6 +40,13 @@ class Guard
 			}
 			
 			return $this->findOrCreateUser();
+		}
+		elseif ( $service = request()->header( 'service' ) )
+		{
+			if ( Decrypt::valid( $service ) )
+			{
+				return 'auth:machine';
+			}
 		}
 		
 		return;
@@ -61,9 +56,9 @@ class Guard
 	 * Check token is valid while in auth service
 	 */
 	protected
-	function tokenValidationOnAuthService()
+	function tokenValidationOnAuthService ()
 	{
-		$accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($this->token);
+		$accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken( $this->token );
 		
 		if ( !$accessToken )
 		{
@@ -81,7 +76,6 @@ class Guard
 		
 		return 'auth:user';
 	}
-	
 	
 	/**
 	 * Check token is valid by sending token to auth service
@@ -105,9 +99,9 @@ class Guard
 		//		$route = Route::getRoutes()->match( request() );
 		
 		$this->tokenResponse = Http::post( config( 'portal.auth_endpoint' ), [
-			'token'        => $this->token,
+			'token'   => $this->token,
 			//			'route_name'   => $route->getName(),
-			'service'      => config('portal.current_service')
+			'service' => config( 'portal.current_service' ),
 		] );
 	}
 	
