@@ -55,7 +55,11 @@ class Guard
 		{
 			if ( Decrypt::valid( $service ) )
 			{
-				return new DummyUser();//Portal::actingAs( new $this->userModel() );
+				if( config( 'portal.mock_user' ) )
+				{
+					return new DummyUser();
+				}
+				return Portal::actingAs( new $this->userModel() );
 			}
 		}
 		
