@@ -2,9 +2,9 @@
 
 return [
 	'auth_endpoint'       => env( 'PORTAL_AUTH_ENDPOINT', '172.17.0.1/api/auth/token/check/' ),
-	'expiration'          => NULL,
 	'main_appliance'      => 'd9f605f0-0669-4d05-8845-e4517acb6557',
 	'user_model'          => env( 'PORTAL_USER_MODEL', 'App\Models\User' ),
+	'mock_user'          => env( 'PORTAL_MOCK_USER', FALSE ),
 	'db_user_fields'      => [
 		'id'    => 'user_id',
 		'name'  => 'name',
@@ -36,6 +36,6 @@ return [
 	//change this to service name ex. auth , media or mbc for exception
 	'private_key'     => base_path( 'keys/private.key' ),
 	'pass_key'        => env( 'SERVICE_PASS_KEY', '123456' ),
-	'ttl'             => env( 'SERVICE_TOKEN_TTL', 3600 ),
+	'ttl'             => env( 'SERVICE_TOKEN_TTL', 60 ),
 
 ];

@@ -29,19 +29,6 @@ class ApiModel
 	 * @throws KeyFileDoesNotExist
 	 * @throws InvalidData
 	 * @throws BadKey
-	 */
-	public static
-	function find ( $id, $params = [] )
-	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', $params );
-		
-		return $apiResponse->object()->data;
-	}
-	
-	/**
-	 * @throws KeyFileDoesNotExist
-	 * @throws InvalidData
-	 * @throws BadKey
 	 * @throws Exception
 	 */
 	public static
@@ -102,6 +89,19 @@ class ApiModel
 		}
 		
 		return $response;
+	}
+	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
+	public static
+	function find ( $id, $params = [] )
+	{
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', $params );
+		
+		return $apiResponse->object()->data;
 	}
 	
 	public static

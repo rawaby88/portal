@@ -5,23 +5,24 @@ namespace Rawaby88\Portal;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use Prophecy\Exception\Doubler\MethodNotFoundException;
+use Rawaby88\Portal\Models\DummyUser;
+use Symfony\Component\ErrorHandler\Error\ClassNotFoundError;
 
 class Guard
 {
 	protected $auth;
-	protected $expiration;
 	protected $provider;
 	protected $tokenResponse;
 	protected $token;
 	protected $userModel;
 	
 	public
-	function __construct ( AuthFactory $auth, $expiration = NULL, $provider = NULL )
+	function __construct ( AuthFactory $auth, $provider = NULL )
 	{
-		$this->auth       = $auth;
-		$this->expiration = $expiration;
-		$this->provider   = $provider;
-		$this->userModel  = config( 'portal.user_model', 'App\Models\User' );
+		$this->auth      = $auth;
+		$this->provider  = $provider;
+		$this->userModel = config( 'portal.user_model', 'App\Models\User' );
 	}
 	
 	public
@@ -29,23 +30,32 @@ class Guard
 	{
 		if ( $this->token = request()->bearerToken() )
 		{
+			//if bearerToken validation in auth service
 			if ( config( 'portal.current_service' ) === 'auth' )
 			{
-				return $this->tokenValidationOnAuthService();
+				$accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken( $this->token );
+				
+				if ( !$accessToken || !$this->isValidAccessTokenAuthService( $accessToken ) )
+				{
+					return;
+				}
+				
+				return $accessToken->tokenable->withAccessToken( $accessToken );
 			}
 			
+			//if bearerToken validation in other service
 			if ( !$this->isValidAccessToken() )
 			{
 				return;
 			}
 			
-			return $this->findOrCreateUser();
+			return $this->authenticatedUser();
 		}
 		elseif ( $service = request()->header( 'service' ) )
 		{
 			if ( Decrypt::valid( $service ) )
 			{
-				return Portal::actingAs(new $this->userModel());
+				return new DummyUser();//Portal::actingAs( new $this->userModel() );
 			}
 		}
 		
@@ -56,25 +66,18 @@ class Guard
 	 * Check token is valid while in auth service
 	 */
 	protected
-	function tokenValidationOnAuthService ()
+	function isValidAccessTokenAuthService ( $accessToken )
 	{
-		$accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken( $this->token );
-		
-		if ( !$accessToken )
-		{
-			return;
-		}
-		
 		if ( $accessToken->updated_at->lte( now()->subMinutes( config( 'sanctum.expiration' ) ) ) )
 		{
 			$accessToken->delete();
 			
-			return;
+			return FALSE;
 		}
 		
 		$accessToken->touch();
 		
-		return $this->userModel::find( $accessToken->tokenable_id );
+		return TRUE;
 	}
 	
 	/**
@@ -96,38 +99,54 @@ class Guard
 	protected
 	function tokenResponse ()
 	{
-		//		$route = Route::getRoutes()->match( request() );
-		
 		$this->tokenResponse = Http::post( config( 'portal.auth_endpoint' ), [
 			'token'   => $this->token,
-			//			'route_name'   => $route->getName(),
 			'service' => config( 'portal.current_service' ),
 		] );
+	}
+	
+	protected
+	function authenticatedUser ()
+	{
+		$response = $this->tokenResponse->object()->data;
+		
+		if( config( 'portal.mock_user' ) )
+		{
+			$user = new DummyUser();
+			
+			$user->setToken ($this->token);
+			$user->setData ( $response );
+		}
+		elseif ( class_exists( $this->userModel ) )
+		{
+			$user = $this->userModel::find( $response->id );
+			
+			if ( !$user )
+			{
+				$user = $this->createUser( $response );
+			}
+			
+			if ( method_exists( $user, 'setToken' ) )
+			{
+				$user->setToken( $this->token );
+			}
+			else
+			{
+				throw new MethodNotFoundException( 'missing setToken() in ' . $this->userModel, $this->userModel, 'setToken' );
+			}
+		}else
+		{
+			throw new ClassNotFoundError('Class not found '. $this->userModel, 404);
+		}
+		
+		return $user;
 	}
 	
 	/**
 	 * Find or create user to current service;
 	 */
 	protected
-	function findOrCreateUser ()
-	{
-		$response = $this->tokenResponse->object()->data;
-		
-		$user = $this->userModel::find( $response->id );
-		
-		if ( !$user )
-		{
-			$user = $this->userModel::create( $this->userFields( $response ) );
-			$user->setData( $response );
-		}
-		
-		$user->setToken( $this->token );
-		
-		return $user;
-	}
-	
-	protected
-	function userFields ( $response ): array
+	function createUser ( $response )
 	{
 		$data = [];
 		
@@ -136,7 +155,9 @@ class Guard
 			$data[ $field ] = $response->$res;
 		}
 		
-		return $data;
+		return $this->userModel::create(  $data );
+		
 	}
+	
 	
 }

@@ -84,7 +84,7 @@ class PortalServiceProvider extends ServiceProvider
 	protected
 	function createGuard ( $auth, $config ): RequestGuard
 	{
-		return new RequestGuard( new Guard( $auth, config( 'portal.expiration' ), $config[ 'provider' ] ), request(),
+		return new RequestGuard( new Guard( $auth, $config[ 'provider' ] ), request(),
 		                         $auth->createUserProvider( $config[ 'provider' ] ?? NULL ) );
 	}
 	
