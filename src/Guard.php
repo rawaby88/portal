@@ -114,7 +114,6 @@ class Guard
 		{
 			$user = new DummyUser();
 			
-			$user->setToken ($this->token);
 			$user->setData ( $response );
 		}
 		elseif ( class_exists( $this->userModel ) )
