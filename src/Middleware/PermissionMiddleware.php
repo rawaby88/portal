@@ -20,11 +20,11 @@ class PermissionMiddleware
 	public
 	function handle ( Request $request, Closure $next )
 	{
-		if( !request()->token || ! auth()->user()->token )
+		if( ! auth()->user()->token )
 		{
 			return response()->json( [
 				                         'error'   => TRUE,
-				                         'message' => 'In order to use PermissionMiddleware you need to attach token in the request or store token in user table',
+				                         'message' => 'Token is not included in the auth user',
 				                         'data'    => [],
 			                         ],  Response::HTTP_UNPROCESSABLE_ENTITY );
 		}
@@ -40,7 +40,7 @@ class PermissionMiddleware
 		}
 		
 		$permission = Http::get( config( 'portal.service.auth.url' ) .'/api/auth/token/can', [
-			'token' => request()->token ?? auth()->user()->token,
+			'token' => auth()->user()->token,
 			'route_name'   => $routeName,
 			'service'      => config('portal.current_service')
 		] );
