@@ -114,7 +114,6 @@ class Guard
 		{
 			$user = new DummyUser();
 			
-			$user->setData ( $response );
 		}
 		elseif ( class_exists( $this->userModel ) )
 		{
@@ -129,7 +128,13 @@ class Guard
 			throw new ClassNotFoundError('Class not found '. $this->userModel, 404);
 		}
 		
-		$this->setToken($user,  $this->token );
+		if (! in_array( Portable::class, class_uses($user)))
+		{
+			throw new \Exception('Portable trait is not use in ' . $this->userModel);
+		}
+		
+		$user->setData ( $response );
+		$user->setToken( $this->token );
 		
 		return $user;
 	}

@@ -43,5 +43,11 @@ trait Portable
 	function setData ( $data ): void
 	{
 		$this->data = $data;
+		
+		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
+		{
+			$this->{$field} = $data->$res;
+		}
 	}
+	
 }
