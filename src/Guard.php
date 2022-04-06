@@ -125,19 +125,12 @@ class Guard
 			{
 				$user = $this->createUser( $response );
 			}
-			
-			if ( method_exists( $user, 'setToken' ) )
-			{
-				$user->setToken( $this->token );
-			}
-			else
-			{
-				throw new MethodNotFoundException( 'missing setToken() in ' . $this->userModel, $this->userModel, 'setToken' );
-			}
 		}else
 		{
 			throw new ClassNotFoundError('Class not found '. $this->userModel, 404);
 		}
+		
+		$this->setToken($user,  $this->token );
 		
 		return $user;
 	}
@@ -157,6 +150,12 @@ class Guard
 		
 		return $this->userModel::create(  $data );
 		
+	}
+	
+	protected
+	function setToken (&$user, $token)
+	{
+		$user->token = $token;
 	}
 	
 	
