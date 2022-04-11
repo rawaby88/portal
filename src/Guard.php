@@ -2,11 +2,12 @@
 
 namespace Rawaby88\Portal;
 
+use Exception;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Prophecy\Exception\Doubler\MethodNotFoundException;
-use Rawaby88\Portal\Models\DummyUser;
+use Rawaby88\Portal\Models\User;
 use Symfony\Component\ErrorHandler\Error\ClassNotFoundError;
 
 class Guard
@@ -57,7 +58,13 @@ class Guard
 			{
 				if( config( 'portal.mock_user' ) )
 				{
-					return new DummyUser();
+					$user = Portal::actingAs( new User() );
+					
+					if(request()->user_id)
+					{
+						$user->findAndActAs(request()->user_id);
+					}
+					return $user;
 				}
 				return Portal::actingAs( new $this->userModel() );
 			}
@@ -109,6 +116,9 @@ class Guard
 		] );
 	}
 	
+	/**
+	 * @throws Exception
+	 */
 	protected
 	function authenticatedUser ()
 	{
@@ -116,8 +126,7 @@ class Guard
 		
 		if( config( 'portal.mock_user' ) )
 		{
-			$user = new DummyUser();
-			
+			$user = new User();
 		}
 		elseif ( class_exists( $this->userModel ) )
 		{
@@ -129,12 +138,12 @@ class Guard
 			}
 		}else
 		{
-			throw new ClassNotFoundError('Class not found '. $this->userModel, 404);
+			throw new ClassNotFoundError(printf('Class not found %s', $this->userModel), 404);
 		}
 		
 		if (! in_array( Portable::class, class_uses($user)))
 		{
-			throw new \Exception('Portable trait is not use in ' . $this->userModel);
+			throw new Exception(printf('Portable trait is not use in %s', $this->userModel)  );
 		}
 		
 		$user->setData ( $response );
@@ -161,10 +170,12 @@ class Guard
 	}
 	
 	protected
-	function setToken (&$user, $token)
+	function userFields ( $user )
 	{
-		$user->token = $token;
+		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
+		{
+			$user->fillable[] = $field;
+		}
 	}
-	
 	
 }
