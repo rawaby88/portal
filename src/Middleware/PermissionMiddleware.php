@@ -28,7 +28,7 @@ class PermissionMiddleware
 				                         'data'    => [],
 			                         ],  Response::HTTP_UNPROCESSABLE_ENTITY );
 		}
-		$routeName = $this->routeName();
+		$routeName = $request->route()->getName();
 		
 		if( !$routeName)
 		{
@@ -60,13 +60,5 @@ class PermissionMiddleware
 			                         'message' => 'access to the requested resource is forbidden!',
 			                         'data'    => ['route' => $routeName],
 		                         ],  Response::HTTP_FORBIDDEN );
-	}
-	
-	private
-	function routeName (): ?string
-	{
-		$route = Route::getRoutes()->match( request() );
-		
-		return $route->getName();
 	}
 }
