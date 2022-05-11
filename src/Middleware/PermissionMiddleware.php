@@ -56,7 +56,7 @@ class PermissionMiddleware
 		
 		return response()->json( [
 			                         'error'   => TRUE,
-			                         'service' => 'auth',
+			                         'service' => config('portal.current_service'),
 			                         'message' => 'access to the requested resource is forbidden!',
 			                         'data'    => ['route' => $routeName],
 		                         ],  Response::HTTP_FORBIDDEN );
