@@ -7,8 +7,13 @@ return [
 	'mock_user'          => env( 'PORTAL_MOCK_USER', FALSE ),
 	'db_user_fields'      => [
 		'id'    => 'user_id',
-		'name'  => 'name',
+		'firstname'  => 'firstname',
 		'email' => 'email',
+		'workspace' => [
+			'workspace_id' => 'workspace_uuid',
+			'role_name' => 'role_name',
+			'role_id'   => 'role_uuid',
+		]
 	],
 	'user_model_key'      => 'user_id',
 	'user_model_key_type' => 'string',

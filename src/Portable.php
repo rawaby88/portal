@@ -17,7 +17,16 @@ trait Portable
 		
 		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
 		{
-			$this->fillable[] = $field;
+			if(is_array($field))
+			{
+				foreach ( $field as $val => $key )
+				{
+					$this->fillable[] = $key;
+				}
+			}else
+			{
+				$this->fillable[] = $field;
+			}
 		}
 	}
 	
@@ -44,10 +53,22 @@ trait Portable
 	{
 		$this->data = $data;
 		
+		
 		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
 		{
-			$this->{$field} = $data->$res;
+			if(is_array($field))
+			{
+				foreach ( $field as $val => $key )
+				{
+					$this->{$key} = $data->{$res}->{$val};
+				}
+			}else
+			{
+				$this->{$field} = $data->{$res};
+			}
 		}
+		
+		
 	}
 	
 }

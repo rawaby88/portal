@@ -162,7 +162,16 @@ class Guard
 		
 		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
 		{
-			$data[ $field ] = $response->$res;
+			if(is_array($field))
+			{
+				foreach ( $field as $val => $key )
+				{
+					$data[ $key ] = $response->{$res}->{$val};
+				}
+			}else
+			{
+				$data[ $field ] = $response->{$res};
+			}
 		}
 		
 		return $this->userModel::create(  $data );
@@ -174,7 +183,16 @@ class Guard
 	{
 		foreach ( config( 'portal.db_user_fields' ) as $res => $field )
 		{
-			$user->fillable[] = $field;
+			if(is_array($field))
+			{
+				foreach ( $field as $val => $key )
+				{
+					$this->fillable[] = $key;
+				}
+			}else
+			{
+				$this->fillable[] = $field;
+			}
 		}
 	}
 	
