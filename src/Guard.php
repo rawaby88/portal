@@ -29,7 +29,7 @@ class Guard
 	public
 	function __invoke ()
 	{
-		if ( $this->token = request()->bearerToken() )
+		if ( $this->token = request()->token?->token )
 		{
 			//if bearerToken validation in auth service
 			if ( config( 'portal.current_service' ) === 'auth' )
@@ -147,7 +147,7 @@ class Guard
 		}
 		
 		$user->setData ( $response );
-		$user->setToken( $this->token );
+		$user->setToken( $this->token->token );
 		
 		return $user;
 	}
