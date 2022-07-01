@@ -147,7 +147,7 @@ class Guard
 		}
 		
 		$user->setData ( $response );
-		$user->setToken( $this->token->token );
+		$user->setToken( $this->token );
 		
 		return $user;
 	}
