@@ -29,8 +29,9 @@ class Guard
 	public
 	function __invoke ()
 	{
-		if ( $this->token = request()->token?->token )
+		if ( request()->bearerToken() || request()->token?->token )
 		{
+			$this->token = request()->bearerToken() ?? request()->token?->token;
 			//if bearerToken validation in auth service
 			if ( config( 'portal.current_service' ) === 'auth' )
 			{
