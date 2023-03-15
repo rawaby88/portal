@@ -46,6 +46,7 @@ class PermissionMiddleware
 		] );
 		
 		
+		
 		if ( $permission->status() === Response::HTTP_OK )
 		{
 			if($permission->object()->data->can)

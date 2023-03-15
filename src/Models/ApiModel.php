@@ -91,18 +91,6 @@ class ApiModel
 		return $response;
 	}
 	
-	/**
-	 * @throws KeyFileDoesNotExist
-	 * @throws InvalidData
-	 * @throws BadKey
-	 */
-	public static
-	function find ( $id, $params = [] )
-	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'get', $params );
-		
-		return $apiResponse->object()->data;
-	}
 	
 	public static
 	function serviceBaseUrl (): string
@@ -110,15 +98,38 @@ class ApiModel
 		return config( 'portal.service.' . static::$service . '.url' ) . '/' . static::$baseUrl;
 	}
 	
+	
+	
 	/**
 	 * @throws KeyFileDoesNotExist
 	 * @throws InvalidData
 	 * @throws BadKey
 	 */
 	public static
-	function all ($params = [])
+	function find ( $id, $params = [], $prefix = '' )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl(), 'get', $params );
+		$link = static::serviceBaseUrl() . '/' . $id;
+		if($prefix)
+		{
+			$link = static::serviceBaseUrl() .  '/' . $prefix . '/' . $id;
+		}
+		
+		$apiResponse = static::callApi( $link, 'get', $params );
+		
+		return $apiResponse->object()->data;
+	}
+	
+	
+	
+	/**
+	 * @throws KeyFileDoesNotExist
+	 * @throws InvalidData
+	 * @throws BadKey
+	 */
+	public static
+	function all ($params = [], $prefix = '')
+	{
+		$apiResponse = static::callApi( static::serviceBaseUrl().'/'.$prefix, 'get', $params );
 		
 		return $apiResponse->object()->data;
 	}
@@ -129,9 +140,9 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function create ( array $params, $attachment = NULL )
+	function create ( array $params, $attachment = NULL, $prefix = '' )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl(), 'post', $params, $attachment );
+		$apiResponse = static::callApi( static::serviceBaseUrl().  '/' . $prefix, 'post', $params, $attachment );
 		
 		return $apiResponse->object()->data;
 	}
@@ -142,9 +153,15 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function delete ( int $id, $params = [] )
+	function delete ( int $id, $params = [], $prefix = '' )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $id, 'delete', $params );
+		$link = static::serviceBaseUrl() . '/' . $id;
+		if($prefix)
+		{
+			$link = static::serviceBaseUrl() .  '/' . $prefix . '/' . $id;
+		}
+		
+		$apiResponse = static::callApi( $link, 'delete', $params );
 		
 		return $apiResponse->object()->data;
 	}
@@ -155,9 +172,9 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function get ( string $link, array $params = [] )
+	function get ( string $prefix = '', array $params = [] )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'get', $params );
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $prefix, 'get', $params );
 		
 		return $apiResponse->object()->data;
 	}
@@ -168,9 +185,9 @@ class ApiModel
 	 * @throws BadKey
 	 */
 	public static
-	function post ( string $link, array $params )
+	function post ( string $prefix, array $params )
 	{
-		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $link, 'post', $params );
+		$apiResponse = static::callApi( static::serviceBaseUrl() . '/' . $prefix, 'post', $params );
 		
 		return $apiResponse->object()->data;
 	}

@@ -5,7 +5,7 @@ namespace Rawaby88\Portal;
 class Portal
 {
 	
-	public static $runsMigrations = TRUE;
+	public static $runsMigrations = FALSE;
 	
 	public static
 	function actingAs ( $user )
