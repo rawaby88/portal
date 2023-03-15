@@ -21,8 +21,6 @@ class ApiModel
 	public
 	function __construct ()
 	{
-		//		foreach ( $this->fillable as $field )
-		//			$this->$field = null;
 	}
 	
 	/**
